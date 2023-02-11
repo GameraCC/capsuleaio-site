@@ -1,0 +1,30 @@
+{
+  "requestContext": {
+    "routeKey": "getNokamai",
+    "authorizer": {
+      "principalId": "eyJhcGlLZXkiOnsibmFtZSI6IkNhcHN1bGVBSU98MzM4MjAxNDIxNTQ5NjY2MzEzIiwia2V5IjoiekV6aHBTUXYzSjJQc2labnZSOWhQOW55RzRidzdTZ000TnhIeVJDNCIsImlkIjoiYzFmaWVwcDU1MCJ9LCJvYXV0aDIiOnsiYWNjZXNzX3Rva2VuIjoiaFpVQ0lxQ2hLdWRiMUlpZVZWNUVMcW53aGx1OWx1IiwicmVmcmVzaF90b2tlbiI6IkpaN01uTkNYdWxGR1U2Skw0c2Q1WVFYcVZDMDdNNyIsInRva2VuX3R5cGUiOiJCZWFyZXIiLCJleHBpcmVzX2luIjo2MDQ4MDAsImlhdCI6MTYyODAyOTM0NCwic2NvcGUiOiJpZGVudGlmeSBlbWFpbCBndWlsZHMgZ3VpbGRzLmpvaW4ifSwiYmluZCI6eyJ1c2VyS2V5IjoiLS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS1cbk1JSUNJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBZzhBTUlJQ0NnS0NBZ0VBeUxsTVkvc1R6c1A5S0s4UkxoS0ZcbkovNjZ5Qmt2cTRweTY2dVhPeldjVUFQTkN0RE9SZ1laNmNhYjZIZ21PZWVPeW5kaFUvL0ZobmY1N0ZnZW8yeWlcbnptNXlCUUhsbzFYM0RGSDlJWWgwYU1zODVEZzJVbTVpbUlZWGxKeVhDaHBIYUtsN2FNU2puNTBUM0QwWG5lRFhcbkgySlBzL2Q5bWFEb1pTKzExVW1WUElsc3ZDQ3NEQTBJWTVvM3I4U0xMRUNUOVVjZmdqZGpEbkdNY0tyc0xzRGlcbjkwbmY3akFNU2tFRHF0YUtDdmRFMVpiTUpWaTNSWXNEam0yR05kVmpEKzN1dmd3SjFyVWd4NUMzK0UzRWtqNEpcbnhWeU91dkpwZVl5TlUveVl5TFFlS2RZQnJJZE55TUF2ai9nTzBHWGp6elRQL3NCYXNvVGNGWlQ4ODFBR2VoRzVcbjNYUDBFdnYyYWFaWlg5azF3OGRiMGM5dm11dWdQdHpXL05qVlArMWJwOVo2eUhBZ0VUTHBtb2IwSW1lWHVWVndcbkJkUWM5dWVETmxJNlZ2QUFMTFRwSmd1YU5tN2U0Z2h1a2k4TnQ4dWZiSEdURGFhV3hQWjJ5UDRMMDlQTkdCRW9cbmRRczQwdWE2T3FaN3JYcG53MHdpeVA4SWFQTUszV09zaVN1Zm1qUzNZcnExNUFrZk83TWtkUS94RWhBb1FTWW5cblBwK0xVaVNlbGlvUnJlWFp4Yk1yU050enZHTXV4SkYyYWdUZk1PMHAzOHE5cjhHd1IzQ1R3QnphYlpUbzJyOEtcbm5Yc1JQZTdmTUkyMWZqczFDYnp4a2VLbkowZ0hQeUxTVUZtUGJ0Nm05b0M4Mit5MFZOMkJJVXZJaGlFUnVVVjVcbjZRWVFXWk9nUklQMW1XdXZFQ1dUdHpVQ0F3RUFBUT09XG4tLS0tLUVORCBQVUJMSUMgS0VZLS0tLS1cbiIsImlwIjoiNzMuMjU0LjEzMS4xNTcifSwiZGlzY29yZCI6eyJmbGFncyI6MCwidmVyaWZpZWQiOnRydWUsImJhbm5lciI6bnVsbCwiYXZhdGFyIjoiNThhZTViYzQ4YmU5ZDg2OGI0YTIyNTczMGM5MTJhZDUiLCJsb2NhbGUiOiJlbi1VUyIsImRpc2NyaW1pbmF0b3IiOiIxMDEwIiwiYmFubmVyX2NvbG9yIjpudWxsLCJwcmVtaXVtX3R5cGUiOjIsImFjY2VudF9jb2xvciI6bnVsbCwibWZhX2VuYWJsZWQiOnRydWUsImlkIjoiMzM4MjAxNDIxNTQ5NjY2MzEzIiwicHVibGljX2ZsYWdzIjowLCJlbWFpbCI6InFxZXllc0BnbWFpbC5jb20iLCJ1c2VybmFtZSI6InFxZXllcyJ9LCJrZXlJZCI6IlFRLTQwMDc3LTM2NDAiLCJrZXkiOiI0Y2RmNTgxNzIyYTg2MzdmMGMwMzk4MTZmMDczNzk5MyIsImlkIjoiMzM4MjAxNDIxNTQ5NjY2MzEzIiwidHlwZSI6InVzZXIifQ=="
+    },
+    "messageId": "DhsxwcOCoAMCL2g=",
+    "eventType": "MESSAGE",
+    "extendedRequestId": "DhsxwHEQIAMF3vQ=",
+    "requestTime": "04/Aug/2021:05:39:23 +0000",
+    "messageDirection": "IN",
+    "stage": "prod",
+    "connectedAt": 1628053057484,
+    "requestTimeEpoch": 1628055563057,
+    "identity": {
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36",
+      "sourceIp": "73.254.131.157"
+    },
+    "requestId": "DhsxwHEQIAMF3vQ=",
+    "domainName": "s.capsuleaio.com",
+    "connectionId": "DhmqQe1aoAMCL2g=",
+    "apiId": "w17a44k1mc"
+  },
+  "body": { 
+    "action": "getNokamai", 
+    "url": "sdfd", 
+    "cookie": "dfd", 
+    "uid": "test" 
+  }
+}

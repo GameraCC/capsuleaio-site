@@ -1,0 +1,27 @@
+{
+  "name": "capsuleaio-api-v1",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "capsuleaio-initial-fingerprint": "file:../libs/capsuleaio-initial-fingerprint",
+    "capsuleaio-nokamai": "file:../libs/capsuleaio-nokamai",
+    "capsuleaio-nokamai-pixel": "file:../libs/capsuleaio-nokamai-pixel",
+    "cookie": "^0.4.1",
+    "db": "file:../libs/db",
+    "jsonwebtoken": "^8.5.1",
+    "kms": "file:../libs/kms",
+    "mgmt": "file:../libs/mgmt",
+    "qq-crypto": "file:../libs/qq-crypto",
+    "qs": "^6.9.4"
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.804.0",
+    "serverless-webpack": "^5.5.1",
+    "webpack": "^5.48.0"
+  }
+}

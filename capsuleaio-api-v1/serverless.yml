@@ -1,0 +1,202 @@
+service: ${file(../serverless.common.yml):service}-api-v1
+frameworkVersion: '2'
+
+plugins:
+  - serverless-domain-manager
+  - serverless-webpack
+
+provider:
+  name: aws
+  stage: ${file(../serverless.common.yml):provider.stage}
+  region: ${file(../serverless.common.yml):provider.region}
+  runtime: nodejs12.x 
+  apiGateway:
+    shouldStartNameWithService: true
+  memorySize: 256
+  environment:
+    DASHBOARD_REDIRECT_URI: https://${file(../serverless.common.yml):custom.site}/dashboard
+    DASHBOARD_LOGIN_URI: https://${file(../serverless.common.yml):custom.site}/login
+    DISCORD_REDIRECT_URI: https://api.${file(../serverless.common.yml):custom.site}/v1/login
+    DISCORD_SCOPE: "identify email guilds guilds.join"
+    AUTH_COOKIE: __Secure-auth
+    ALLOW_ORIGIN: https://${file(../serverless.common.yml):custom.site}
+    DB_TABLE: !ImportValue ${self:provider.stage}-DbTableName
+    DB_KEY_INDEX: !ImportValue ${self:provider.stage}-DbLsiName
+    FAKAM_TABLE: !ImportValue ${self:provider.stage}-FakamDbTableName
+    ANALYTICS_TABLE: !ImportValue ${self:provider.stage}-AnalyticsDbTableName
+    DISCORD_CLIENT_ID: ${ssm:/CAPSULEAIO_DISCORD_CLIENT_ID~true}
+    DISCORD_CLIENT_SECRET: ${ssm:/CAPSULEAIO_DISCORD_CLIENT_SECRET~true}
+    FAKAM_AES_ENCRYPTION_KEY: ${ssm:/CAPSULEAIO_FAKAM_AES_ENCRYPTION_KEY~true}
+    KEY_ARN: !ImportValue ${self:provider.stage}-KeyArn
+    CAPSULEAIO_NOKAMAI_AES_ENCRYPTION_KEY: ${ssm:/CAPSULEAIO_NOKAMAI_AES_ENCRYPTION_KEY~true}
+    TOKEN_USAGE_PLAN_ID: !ImportValue ${self:provider.stage}-token-usageplan-id
+  iamRoleStatements:
+    - ${file(../serverless.common.yml):provider.iamRoleStatements.DbPolicy}
+    - Effect: Allow
+      Action:
+        - kms:GetPublicKey
+      Resource:
+        - !ImportValue ${self:provider.stage}-KeyArn
+    - Effect: Allow
+      Action:
+        - apigateway:POST
+        - apigateway:DELETE
+      Resource: 
+        - arn:aws:apigateway:${self:provider.region}::/apikeys
+        - arn:aws:apigateway:${self:provider.region}::/apikeys/*
+        - arn:aws:apigateway:${self:provider.region}::/usageplans/*/*
+
+custom:
+  customDomain:
+    domainName: api.${file(../serverless.common.yml):custom.site}
+    basePath: v1
+    certificateArn: ${file(../serverless.common.yml):custom.certificate}
+    hostedZoneId: ${file(../serverless.common.yml):custom.hostedZoneId}
+    createRoute53Record: true
+    endpointType: edge
+    securityPolicy: tls_1_2
+    autoDomain: true
+
+functions:
+  get-user:
+    handler: handler.getUser
+    events:
+      - http:
+          path: user
+          method: get
+          authorizer: 
+            name: authorizer
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.cookie
+            
+  unbind:
+    handler: handler.unbind
+    events:
+      - http:
+          path: key/unbind
+          method: get
+          authorizer: 
+            name: authorizer
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.cookie
+            
+  activate-key:
+    handler: handler.activateKey
+    events:
+      - http:
+          path: key/activate
+          method: post
+          authorizer: 
+            name: authorizer
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.cookie
+            
+  bind-key:
+    handler: handler.bindKey
+    events:
+      - http:
+          path: key/bind
+          method: post
+
+  authorizer:
+    handler: handler.authorizer
+
+  discord-callback:
+    handler: handler.discordCallback
+    events:
+      - http:
+          path: login
+          method: get
+
+  input-fingerprint:
+    handler: handler.inputFingerprint
+    events:
+      - http:
+          path: data
+          method: post
+
+  get-token-handler:
+    handler: handler.getToken
+    memorySize: 1024
+    events:
+      - http:
+          path: token
+          method: post
+          private: true
+          
+  get-nokamai-handler:
+    handler: handler.getNokamai
+    events:
+      - http:
+          path: token/nok
+          method: post
+          private: true
+
+  get-pixel-handler:
+    handler: handler.getPixel
+    events:
+      - http:
+          path: token/pix
+          method: post
+          private: true
+
+  get-initial-fingerprint-handler:
+    handler: handler.getInitialFingerprint
+    events:
+      - http:
+          path: token/init
+          method: post
+          private: true
+
+  get-user-count:
+    handler: handler.getUserCount
+    events:
+      - http:
+          path: admin/getUserCount
+          method: get
+          authorizer: 
+            name: authorizer
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.cookie
+
+  get-connected-user-count:
+    handler: handler.getConnectedUserCount
+    events:
+      - http:
+          path: admin/getConnectedUserCount
+          method: get
+          authorizer: 
+            name: authorizer
+            resultTtlInSeconds: 0
+            identitySource: method.request.header.cookie
+
+resources:
+  Resources:
+    TokenUsagePlan:
+      Type: 'AWS::ApiGateway::UsagePlan'
+      Properties:
+        UsagePlanName: ${self:provider.stage}-${self:service}-TokenUserPlan
+        ApiStages:
+          - ApiId: !Ref ApiGatewayRestApi
+            Stage: ${self:provider.stage}
+        Quota:
+          Limit: 100000
+          Offset: 0
+          Period: DAY
+        Throttle:
+          BurstLimit: 500
+          RateLimit: 2000
+
+  Outputs:
+    apiId:
+      Value: !Ref ApiGatewayRestApi
+      Export:
+        Name: ${self:provider.stage}-${self:service}-id
+    apiRootResourceId:
+      Value: !GetAtt ApiGatewayRestApi.RootResourceId
+      Export:
+        Name: ${self:provider.stage}-${self:service}-root-resource-id
+    tokenUsagePlanId:
+      Value: !Ref TokenUsagePlan
+      Export:
+        Name: ${self:provider.stage}-token-usageplan-id

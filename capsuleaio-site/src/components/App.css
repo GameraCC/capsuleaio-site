@@ -1,0 +1,38 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+.App-header {
+  background-color: #282c34;
+  background-image: url("data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%201440%20320%22%3E%3Cpath%20fill%3D%22%236c71c4%22%20fill-opacity%3D%221%22%20d%3D%22M0%2C64L60%2C64C120%2C64%2C240%2C64%2C360%2C58.7C480%2C53%2C600%2C43%2C720%2C69.3C840%2C96%2C960%2C160%2C1080%2C170.7C1200%2C181%2C1320%2C139%2C1380%2C117.3L1440%2C96L1440%2C0L1380%2C0C1320%2C0%2C1200%2C0%2C1080%2C0C960%2C0%2C840%2C0%2C720%2C0C600%2C0%2C480%2C0%2C360%2C0C240%2C0%2C120%2C0%2C60%2C0L0%2C0Z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: #fff;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+.fade-in {
+  animation: fadein 1s;
+}
+
+a {  
+  text-decoration: none;
+}
+
+@keyframes fadein {
+  from { opacity: 0}
+  to { opacity: 1}
+}

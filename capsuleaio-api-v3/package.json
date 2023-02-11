@@ -1,0 +1,21 @@
+{
+  "name": "capsuleaio-api-v3",
+  "version": "1.0.0",
+  "description": "",
+  "main": "handler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "cookie": "^0.4.1",
+    "db": "file:../libs/db",
+    "jsonwebtoken": "^8.5.1",
+    "qq-crypto": "file:../libs/qq-crypto"
+  },
+  "devDependencies": {
+    "serverless-webpack": "^5.5.4",
+    "webpack": "^5.57.1"
+  }
+}

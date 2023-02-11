@@ -1,0 +1,170 @@
+service: ${file(../serverless.common.yml):service}-db
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  stage: ${file(../serverless.common.yml):provider.stage}
+  region: ${file(../serverless.common.yml):provider.region}
+
+resources:
+  - Resources:
+      AnalyticsDb:
+        Type: 'AWS::DynamoDB::Table'
+        DeletionPolicy: Retain
+        Properties:
+          AttributeDefinitions:
+            - AttributeName: "user"
+              AttributeType: "S"
+            - AttributeName: "id"
+              AttributeType: "S"
+            - AttributeName: "type"
+              AttributeType: "S"
+            - AttributeName: "iat"
+              AttributeType: "N"
+          KeySchema:
+            - AttributeName: "type"
+              KeyType: "HASH"
+            - AttributeName: "id"
+              KeyType: "RANGE"
+          LocalSecondaryIndexes:
+            - IndexName: IatIndex
+              KeySchema:
+                - AttributeName: "type"
+                  KeyType: "HASH"
+                - AttributeName: "iat"
+                  KeyType: "RANGE"
+              Projection:
+                ProjectionType: "ALL"
+          GlobalSecondaryIndexes:
+            - IndexName: UserIndex
+              KeySchema:
+                - AttributeName: "user"
+                  KeyType: "HASH"
+                - AttributeName: "id"
+                  KeyType: "RANGE"
+              Projection:
+                ProjectionType: "ALL"
+          BillingMode: PAY_PER_REQUEST
+          TableName: ${self:service}-analytics-${self:provider.stage}
+          StreamSpecification:
+            StreamViewType: "NEW_IMAGE"
+
+      LiveVariableDb:
+        Type: 'AWS::DynamoDB::Table'
+        DeletionPolicy: Retain
+        Properties:
+          AttributeDefinitions:
+            - AttributeName: "key"
+              AttributeType: "S"
+          KeySchema:
+            - AttributeName: "key"
+              KeyType: "HASH"
+          BillingMode: PAY_PER_REQUEST
+          TableName: ${self:service}-liveVariable-${self:provider.stage}
+          StreamSpecification:
+            StreamViewType: "NEW_AND_OLD_IMAGES"
+          
+      FakamDb:
+        Type: 'AWS::DynamoDB::Table'
+        DeletionPolicy: Retain
+        Properties:
+          AttributeDefinitions:
+            - AttributeName: "type"
+              AttributeType: "S"
+            - AttributeName: "id"
+              AttributeType: "S"
+          KeySchema:
+            - AttributeName: "type"
+              KeyType: "HASH"
+            - AttributeName: "id"
+              KeyType: "RANGE"
+          BillingMode: PAY_PER_REQUEST
+          TableName: ${self:service}-fakam-${self:provider.stage}
+
+      DynamoDb:
+        Type: 'AWS::DynamoDB::Table'
+        DeletionPolicy: Retain
+        Properties:
+          AttributeDefinitions:
+            - AttributeName: "type"
+              AttributeType: "S"
+            - AttributeName: "id"
+              AttributeType: "S"
+            - AttributeName: "keyId"
+              AttributeType: "S"
+          KeySchema:
+            - AttributeName: "type"
+              KeyType: "HASH"
+            - AttributeName: "id"
+              KeyType: "RANGE"
+          LocalSecondaryIndexes:
+            - IndexName: UserKeyIndex
+              KeySchema:
+                - AttributeName: "type"
+                  KeyType: "HASH"
+                - AttributeName: "keyId"
+                  KeyType: "RANGE"
+              Projection:
+                ProjectionType: "ALL"
+          BillingMode: PAY_PER_REQUEST
+          TableName: ${self:service}-${self:provider.stage}
+          StreamSpecification:
+            StreamViewType: "NEW_AND_OLD_IMAGES"
+
+  - Outputs:
+      DbTableName:
+        Value: !Ref DynamoDb
+        Export:
+          Name: ${self:provider.stage}-DbTableName
+      DbTableArn:
+        Value: !GetAtt DynamoDb.Arn
+        Export:
+          Name: ${self:provider.stage}-DbTableArn
+      DbStreamArn:
+        Value: !GetAtt DynamoDb.StreamArn
+        Export:
+          Name: ${self:provider.stage}-DbStreamArn
+      DbLsiName:
+        Value: UserKeyIndex
+        Export:
+          Name: ${self:provider.stage}-DbLsiName
+      FakamDbTableName:
+        Value: !Ref FakamDb
+        Export:
+          Name: ${self:provider.stage}-FakamDbTableName
+      FakamDbTableArn:
+        Value: !GetAtt FakamDb.Arn
+        Export:
+          Name: ${self:provider.stage}-FakamDbTableArn
+      LiveVariableStreamArn:
+        Value: !GetAtt LiveVariableDb.StreamArn
+        Export:
+          Name: ${self:provider.stage}-LiveVariableDbStreamArn
+      LiveVariableDbTableName:
+        Value: !Ref LiveVariableDb
+        Export:
+          Name: ${self:provider.stage}-LiveVariableDbTableName
+      LiveVariableDbTableArn:
+        Value: !GetAtt LiveVariableDb.Arn
+        Export:
+          Name: ${self:provider.stage}-LiveVariableDbTableArn
+      AnalyticsDbTableName:
+        Value: !Ref AnalyticsDb
+        Export:
+          Name: ${self:provider.stage}-AnalyticsDbTableName
+      AnalyticsDbTableArn:
+        Value: !GetAtt AnalyticsDb.Arn
+        Export:
+          Name: ${self:provider.stage}-AnalyticsDbTableArn
+      AnalyticsUserIndex:
+        Value: UserIndex
+        Export:
+          Name: ${self:provider.stage}-AnalyticsUserIndex
+      AnalyticsIatIndex:
+        Value: IatIndex
+        Export:
+          Name: ${self:provider.stage}-AnalyticsIatIndex
+      AnalyticsStreamArn:
+        Value: !GetAtt AnalyticsDb.StreamArn
+        Export:
+          Name: ${self:provider.stage}-AnalyticsDbStreamArn

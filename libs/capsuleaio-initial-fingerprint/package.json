@@ -1,0 +1,14 @@
+{
+  "name": "capsuleaio-initial-fingerprint",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "qq-crypto": "file:../qq-crypto",
+    "db": "file:../db"
+  },
+  "scripts": {
+    "build": "npm install"
+  },
+  "author": "",
+  "license": "UNLICENSED"
+}

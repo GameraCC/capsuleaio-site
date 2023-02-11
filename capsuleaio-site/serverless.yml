@@ -1,0 +1,98 @@
+service: ${file(../serverless.common.yml):service}-site
+plugins:
+  - serverless-s3-sync
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  stage: ${file(../serverless.common.yml):provider.stage}
+  region: ${file(../serverless.common.yml):provider.region}
+  runtime: nodejs12.x
+
+custom:
+  hostedZoneId: ${file(../serverless.common.yml):custom.hostedZoneId}
+  s3Sync:
+    - bucketName: ${self:service}-s3-${self:provider.stage}
+      localDir: build/
+      deleteRemoved: true
+      defaultContentType: text/html
+      params: # optional
+        - index.html:
+            CacheControl: 'no-cache'
+        - "*.js":
+            CacheControl: 'public, max-age=31536000'
+
+package:
+  exclude:
+    - README.md
+    - package*.json
+    - public/**
+    - src/**
+    - build/**
+
+resources:
+  Resources:
+    SiteS3Bucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:service}-s3-${self:provider.stage}
+        AccessControl: PublicRead
+        WebsiteConfiguration:
+          IndexDocument: index.html
+    SiteS3BucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket:
+          Ref: SiteS3Bucket
+        PolicyDocument:
+          Statement:
+            - Sid: PublicReadGetObject
+              Effect: Allow
+              Principal: "*"
+              Action:
+              - s3:GetObject
+              Resource:
+                !Join
+                  - ""
+                  - - "arn:aws:s3:::"
+                    - !Ref SiteS3Bucket
+                    - "/*"
+    SiteDist:
+      Type: AWS::CloudFront::Distribution
+      Properties:
+        DistributionConfig:
+          Enabled: true
+          HttpVersion: http2
+          Aliases:
+            - ${file(../serverless.common.yml):custom.site}
+          DefaultCacheBehavior:
+            TargetOriginId: S3-website-${file(../serverless.common.yml):custom.site}
+            ViewerProtocolPolicy: redirect-to-https
+            Compress: true
+            CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+          Origins:
+            - Id: S3-website-${file(../serverless.common.yml):custom.site}
+              DomainName: !Select [1, !Split ["//", !GetAtt SiteS3Bucket.WebsiteURL]]
+              CustomOriginConfig:
+                HTTPPort: '80'
+                HTTPSPort: '443'
+                OriginProtocolPolicy: http-only
+          DefaultRootObject: index.html
+          ViewerCertificate:
+            AcmCertificateArn: ${file(../serverless.common.yml):custom.certificate}
+            SslSupportMethod: sni-only
+            MinimumProtocolVersion: TLSv1.2_2019
+          CustomErrorResponses:
+            - ErrorCode: '404'
+              ResponsePagePath: /index.html
+              ResponseCode: '200'
+              ErrorCachingMinTTL: '30'
+    SiteRoute53:
+      Type: AWS::Route53::RecordSet
+      Properties:
+        Type: A
+        Name: ${file(../serverless.common.yml):custom.site}
+        AliasTarget: 
+          DNSName: !GetAtt SiteDist.DomainName
+          HostedZoneId: Z2FDTNDATAQYW2
+        HostedZoneName: ${file(../serverless.common.yml):custom.site}.

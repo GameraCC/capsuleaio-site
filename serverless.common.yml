@@ -1,0 +1,36 @@
+service: capsuleaio
+
+custom:
+  site: capsuleaio.com
+  certificate: [REDACTED]
+  hostedZoneId: [REDACTED]
+
+provider:
+  stage: prod
+  region: us-east-1
+  iamRoleStatements:
+    DbPolicy:
+      Effect: Allow
+      Action:
+        - dynamodb:UpdateItem
+        - dynamodb:GetItem
+        - dynamodb:Query
+        - dynamodb:PutItem
+        - dynamodb:DeleteItem
+        - dynamodb:DescribeStream
+        - dynamodb:GetRecords
+        - dynamodb:GetShardIterator
+        - dynamodb:ListStreams
+      Resource: 
+        - !ImportValue ${self:provider.stage}-DbTableArn
+        - !Join
+          - '/' 
+          - - !ImportValue ${self:provider.stage}-DbTableArn
+            - index/*
+        - !ImportValue ${self:provider.stage}-AnalyticsDbTableArn
+        - !Join
+          - '/' 
+          - - !ImportValue ${self:provider.stage}-AnalyticsDbTableArn
+            - index/*
+        - !ImportValue ${self:provider.stage}-FakamDbTableArn
+        - !ImportValue ${self:provider.stage}-LiveVariableDbTableArn

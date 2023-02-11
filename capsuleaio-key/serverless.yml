@@ -1,0 +1,82 @@
+service: ${file(../serverless.common.yml):service}-key
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  stage: ${file(../serverless.common.yml):provider.stage}
+  region: ${file(../serverless.common.yml):provider.region}
+
+resources:
+  Resources:
+    Key:
+      Type: AWS::KMS::Key
+      Properties: 
+        Description: Capsule AIO assymetric key for external encrypt/decrypt
+        Enabled: true
+        KeySpec: RSA_4096
+        KeyPolicy:
+          Version: '2012-10-17'
+          Id: ${self:service}-policy
+          Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS:
+                !Join
+                - ''
+                - - 'arn:aws:iam::'
+                  - !Ref AWS::AccountId
+                  - :root
+            Action: kms:*
+            Resource: '*'
+        KeyUsage: ENCRYPT_DECRYPT
+    KeyAlias:
+      Type: AWS::KMS::Alias
+      Properties: 
+        AliasName: alias/${self:service}-${self:provider.stage}
+        TargetKeyId: !Ref Key
+    qqrKey:
+      Type: AWS::KMS::Key
+      Properties: 
+        Description: QQRequest / Capsule AIO assymetric key for external encrypt/decrypt of qqr license
+        Enabled: true
+        KeySpec: RSA_4096
+        KeyPolicy:
+          Version: '2012-10-17'
+          Id: ${self:service}-policy
+          Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS:
+                !Join
+                - ''
+                - - 'arn:aws:iam::'
+                  - !Ref AWS::AccountId
+                  - :root
+            Action: kms:*
+            Resource: '*'
+        KeyUsage: SIGN_VERIFY
+    qqrKeyAlias:
+      Type: AWS::KMS::Alias
+      Properties: 
+        AliasName: alias/qqr-${self:service}-${self:provider.stage}
+        TargetKeyId: !Ref qqrKey
+
+  Outputs:
+    KeyId: 
+      Value: !Ref Key
+      Export:
+        Name: ${self:provider.stage}-KeyId
+    KeyArn: 
+      Value: !GetAtt Key.Arn
+      Export:
+        Name: ${self:provider.stage}-KeyArn
+    qqrKeyId: 
+      Value: !Ref qqrKey
+      Export:
+        Name: ${self:provider.stage}-qqrKeyId
+    qqrKeyArn: 
+      Value: !GetAtt qqrKey.Arn
+      Export:
+        Name: ${self:provider.stage}-qqrKeyArn

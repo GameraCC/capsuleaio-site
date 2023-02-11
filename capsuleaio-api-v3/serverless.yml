@@ -1,0 +1,70 @@
+service: ${file(../serverless.common.yml):service}-api-v3
+frameworkVersion: '2'
+
+plugins:
+  - serverless-domain-manager
+  - serverless-webpack
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  stage: ${file(../serverless.common.yml):provider.stage}
+  region: ${file(../serverless.common.yml):provider.region}
+  logs:
+    websocket: true
+  websocketsApiRouteSelectionExpression: $request.body.action
+  memorySize: 256
+  environment:    
+    AUTH_COOKIE: __Secure-auth
+    FAKAM_AES_ENCRYPTION_KEY: ${ssm:/CAPSULEAIO_FAKAM_AES_ENCRYPTION_KEY~true}
+    DB_TABLE: !ImportValue ${self:provider.stage}-DbTableName
+    WS_ENDPOINT: ${self:custom.customDomain.websocket.domainName}/${self:custom.customDomain.websocket.basePath}
+  iamRoleStatements:
+    - ${file(../serverless.common.yml):provider.iamRoleStatements.DbPolicy}
+
+package:
+  patterns:
+    - '!*/**/_extras/**'
+    - '!*/**/_test/**'
+
+custom:
+  customDomain:
+    websocket:
+      domainName: s.${file(../serverless.common.yml):custom.site}
+      basePath: v3
+      certificateArn: ${file(../serverless.common.yml):custom.certificate}
+      createRoute53Record: true
+      endpointType: regional
+      securityPolicy: tls_1_2
+      autoDomain: true
+
+functions:
+  authorizer:
+    handler: handler.authorizer
+
+  connection-handler:
+    handler: handler.connectionHandler
+    events:
+      - websocket:
+          route: $connect
+          authorizer:
+            name: authorizer
+            identitySource: route.request.header.cookie
+      - websocket: $disconnect
+
+  default-handler:
+    handler: handler.defaultHandler
+    events:
+      - websocket: $default #simple event definition without extra route property
+
+  admin-stream-handler:
+    handler: handler.adminStreamHandler
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            !ImportValue ${self:provider.stage}-AnalyticsDbStreamArn
+      - stream:
+          type: dynamodb
+          arn:
+            !ImportValue ${self:provider.stage}-DbStreamArn

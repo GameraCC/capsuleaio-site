@@ -1,0 +1,24 @@
+{
+  "name": "capsuleaio-api-v2",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "db": "file:../libs/db",
+    "kms": "file:../libs/kms",
+    "mgmt": "file:../libs/mgmt",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "serverless-webpack": "^5.5.1",
+    "typescript": "^4.3.5",
+    "webpack": "^5.48.0"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.3",
+    "utf-8-validate": "^5.0.5"
+  }
+}

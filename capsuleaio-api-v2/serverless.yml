@@ -1,0 +1,106 @@
+service: ${file(../serverless.common.yml):service}-api-v2
+frameworkVersion: '2'
+
+plugins:
+  - serverless-domain-manager
+  - serverless-webpack
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  stage: ${file(../serverless.common.yml):provider.stage}
+  region: ${file(../serverless.common.yml):provider.region}
+  logs:
+    websocket: true
+  websocketsApiRouteSelectionExpression: $request.body.action
+  memorySize: 256
+  environment:
+    DB_TABLE: !ImportValue ${self:provider.stage}-DbTableName
+    LIVE_VARIABLE_TABLE: !ImportValue ${self:provider.stage}-LiveVariableDbTableName
+    DB_KEY_INDEX: !ImportValue ${self:provider.stage}-DbLsiName
+    KEY_ARN: !ImportValue ${self:provider.stage}-KeyArn
+    QQR_KEY_ARN: !ImportValue ${self:provider.stage}-qqrKeyArn
+    WS_ENDPOINT: ${self:custom.customDomain.websocket.domainName}/${self:custom.customDomain.websocket.basePath}
+  iamRoleStatements:
+    - ${file(../serverless.common.yml):provider.iamRoleStatements.DbPolicy}
+    - Effect: Allow
+      Action:
+        - kms:Decrypt
+      Resource:
+        - !ImportValue ${self:provider.stage}-KeyArn
+    - Effect: Allow
+      Action:
+        - kms:Sign
+      Resource:
+        - !ImportValue ${self:provider.stage}-qqrKeyArn
+    - Effect: Allow
+      Action:
+        - dynamodb:Scan
+      Resource:
+        - !ImportValue ${self:provider.stage}-LiveVariableDbTableArn
+
+package:
+  patterns:
+    - '!*/**/_extras/**'
+    - '!*/**/_test/**'
+
+custom:
+  customDomain:
+    websocket:
+      domainName: s.${file(../serverless.common.yml):custom.site}
+      basePath: v2
+      certificateArn: ${file(../serverless.common.yml):custom.certificate}
+      createRoute53Record: true
+      endpointType: regional
+      securityPolicy: tls_1_2
+      autoDomain: true
+
+functions:
+  ws-authorizer:
+    handler: handler.authorizer
+
+  connection-handler:
+    handler: handler.connectionHandler
+    events:
+      - websocket:
+          route: $connect
+          authorizer:
+            name: ws-authorizer
+            identitySource: 
+              - route.request.querystring.auth
+              - route.request.querystring.sig
+      - websocket: $disconnect
+
+  default-handler:
+    handler: handler.defaultHandler
+    events:
+      - websocket: $default #simple event definition without extra route property
+
+  get-hello-handler:
+    handler: handler.getHello
+    events:
+      - websocket:
+          route: hello
+          routeResponseSelectionExpression: $default        
+  
+  get-qqr-license-handler:
+    handler: handler.getQqrLicense
+    events:
+      - websocket:
+          route: getReqLic
+          routeResponseSelectionExpression: $default
+
+  analytics-handler:
+    handler: handler.analyticsHandler
+    events:
+      - websocket:
+          route: analytics
+          routeResponseSelectionExpression: $default
+
+  live-variable-stream-handler:
+    handler: handler.liveVariableStreamHandler
+    events:
+      - stream: 
+          type: dynamodb
+          arn: 
+            !ImportValue ${self:provider.stage}-LiveVariableDbStreamArn
